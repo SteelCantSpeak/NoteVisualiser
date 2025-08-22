@@ -7,19 +7,19 @@
 ## 🚀 Features
 
 - 🎼 **Text-Based Input**: Enter notes and chords using standard octave notation (e.g., `C4`, `G#3`, `(C4/E4/G4):2`).
-- ✋ **Two-Handed Input**: Compose separately for the **left** and **right** hand.
-- 🔊 **Oscillator Customization**: Choose oscillator types (`sine`, `square`, `sawtooth`, `triangle`) for each hand.
-- 🎵 **Custom Tempo**: Adjustable BPM (from 5 to 200).
+- ✋ **Two-Handed Input**: Compose separately for the **left** and **right** hand, or add more for more complicated songs
+- 🔊 **Oscillator Customisation**: Choose oscillator types (`sine`, `square`, `sawtooth`, `triangle`) for each hand.
+- 🎵 **Custom Tempo**: Adjustable Play Speed
 - 🎚️ **Modes**:
   - **Letter Mode**: Input notes directly with A-G notation.
-  - **Word Length Mode**: Map word lengths to notes (experimental / fun mode).
+  - **Word Length Mode**: Map word lengths to notes (experimental/fun mode).
 - 🧠 **Visual Feedback**: See currently playing notes for each hand.
 - 🖱️ **Simple UI**: Built using HTML, CSS (Bootstrap), and JavaScript.
 
 # Example Inputs
 A Variety of potential Songs are available, requiring only one or two Oscillators, but I'm not good at transcribing Music. Here are some simple tracks.
 
-### Ode to Joy
+### Mary had a Little Lamb
 #### Left Hand
 ```js
 (C3):2 (G3):2 (C3):2 (G3):2 (G3):2 (B2):2 (C3):2 (G3):2 
