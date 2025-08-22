@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MIDI Player – 30s with Oscillator</title>
+</head>
+<body>
+  <h2>MIDI Player (First 60 Seconds)</h2>
+  <input type="file" id="midiFile" accept=".mid,.midi" />
+  <label for="oscType">Oscillator Type:</label>
+  <select id="oscType">
+    <option value="sine">Sine</option>
+    <option value="square">Square</option>
+    <option value="triangle">Triangle</option>
+    <option value="sawtooth">Sawtooth</option>
+  </select>
+  <button id="playBtn">Play</button>
+
+  <script type="module">
+    import * as Tone from "https://cdn.skypack.dev/tone";
+    import { Midi } from "https://cdn.skypack.dev/@tonejs/midi";
+
+    const fileInput = document.getElementById('midiFile');
+    const playBtn = document.getElementById('playBtn');
+    const oscTypeSelector = document.getElementById('oscType');
+
+    let midiData = null;
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const buffer = await file.arrayBuffer();
+      midiData = new Midi(buffer);
+      console.log("Parsed MIDI:", midiData);
+    });
+
+    playBtn.addEventListener('click', async () => {
+      if (!midiData) {
+        alert("Please select a MIDI file first.");
+        return;
+      }
+
+      await Tone.start();
+
+      const oscType = oscTypeSelector.value;
+      const MAX_TIME = 60; // seconds
+
+      // Use a PolySynth for multiple simultaneous notes
+      const synth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: oscType },
+        volume: -10
+      }).toDestination();
+
+      const now = Tone.now() + 0.1;
+
+      midiData.tracks.forEach(track => {
+        track.notes.forEach(note => {
+          if (note.time <= MAX_TIME) {
+            const duration = Math.min(note.duration, MAX_TIME - note.time);
+            synth.triggerAttackRelease(
+              note.name, // e.g., "C4"
+              duration,
+              now + note.time
+            );
+          }
+        });
+      });
+
+      console.log(`Playing first 30s with ${oscType} oscillator.`);
+    });
+  </script>
+</body>
+</html>

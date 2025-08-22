@@ -1,0 +1,27 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+Icon?
+
+# Editor/IDE folders
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs (if any are generated)
+*.log
+
+# Environment files (optional, in case you use them)
+.env
+.env.local
+
+# Cache/temp (optional)
+.cache/
+tmp/
+temp/
+
+# Mess-Around Files
+midi_files/
