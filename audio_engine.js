@@ -1,3 +1,4 @@
+// === Note Frequency Map ===
 export const baseNoteMap = {
   'A0': 27.50, 'A#0': 29.14, 'B0': 30.87, 'C1': 32.70, 'C#1': 34.65, 'D1': 36.71, 'D#1': 38.89, 'E1': 41.20,
   'F1': 43.65, 'F#1': 46.25, 'G1': 49.00, 'G#1': 51.91, 'A1': 55.00, 'A#1': 58.27, 'B1': 61.74, 'C2': 65.41,
@@ -12,17 +13,27 @@ export const baseNoteMap = {
   'F7': 2793.83, 'F#7': 2959.96, 'G7': 3135.96, 'G#7': 3322.44, 'A7': 3520.00, 'A#7': 3729.31, 'B7': 3951.07, 'C8': 4186.01
 };
 
-// 🔊 Audio context initialization
+// === Audio Context Initialization ===
 const context = window.audioContext || new (window.AudioContext || window.webkitAudioContext)();
 if (!window.audioContext) {
   window.audioContext = context;
 }
 
-// 🔊 Master gain node (controls overall volume)
+// === Master Gain Node ===
 const masterGain = context.createGain();
 masterGain.gain.value = 0.7;
 masterGain.connect(context.destination);
 
+// === MediaStreamDestination for Recording ===
+const destination = context.createMediaStreamDestination();
+masterGain.connect(destination); // Now we can record everything that plays through masterGain
+
+// === Recording State ===
+let mediaRecorder;
+let recordedChunks = [];
+let recordedBlob = null;
+
+// === Oscillator Tracking ===
 let currentOscillators = [];
 
 /**
@@ -88,4 +99,39 @@ export function getAudioContext() {
  */
 export function setMasterVolume(value) {
   masterGain.gain.value = parseFloat(value);
+}
+
+/**
+ * Record Input as Blob
+ */
+export function startRecording() {
+  const context = getAudioContext();
+  const dest = context.createMediaStreamDestination();
+  masterGain.connect(dest);
+
+  mediaRecorder = new MediaRecorder(dest.stream);
+  recordedChunks = [];
+  recordedBlob = null;
+
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunks.push(event.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    recordedBlob = new Blob(recordedChunks, { type: "audio/webm" });
+  };
+
+  mediaRecorder.start();
+}
+
+export function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+}
+
+export function getRecordedBlob() {
+  return recordedBlob;
 }

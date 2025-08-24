@@ -3,14 +3,25 @@ import {
   scheduleNote,
   stopAllSounds,
   getAudioContext,
-  setMasterVolume
+  setMasterVolume,
+  startRecording,
+  stopRecording,
+  getRecordedBlob
 } from './audio_engine.js';
+
+const downloadRecordingBtn = document.getElementById("downloadRecordingBtn");
+
+
+const startRecordingBtn = document.getElementById("startRecordingBtn");
+const stopRecordingBtn = document.getElementById("stopRecordingBtn");
 
 const MIN_HANDS = 2;
 const MAX_HANDS = 16;
 let handCount = MIN_HANDS;
 
 let isPlaying = false;
+let isRecording = false;
+let recordedBlob = null;
 let currentTimeouts = [];
 
 const handsContainer = document.getElementById("handsContainer");
@@ -203,6 +214,14 @@ function playHandsSequences(handsSeqs, noteMap, bpmMultiplier) {
         doneMsg.className = "mt-2 text-success";
         doneMsg.textContent = "Done";
         statusDiv.appendChild(doneMsg);
+
+        if (isRecording) {
+          setTimeout(() => {
+            stopRecording();
+            isRecording = false;
+            downloadRecordingBtn.disabled = false;
+          }, 500); // 0.5 second delay
+        }
       });
     }
   }, tickInterval);
@@ -217,6 +236,10 @@ function playAllHands() {
   if (context.state === 'suspended') context.resume();
 
   stopPlayback();
+
+  startRecording();
+  isRecording = true;
+  downloadRecordingBtn.disabled = true;
 
   const mode = document.getElementById("modeSelect").value;
   const bpmMultiplier = parseFloat(document.getElementById("tempoRange").value);
@@ -247,6 +270,7 @@ function playAllHands() {
 
   playHandsSequences(handsSeqs, baseNoteMap, bpmMultiplier);
 }
+
 
 
 function stopPlayback() {
@@ -288,6 +312,48 @@ removeHandBtn.addEventListener("click", () => {
     renderHands();
   }
 });
+
+
+downloadRecordingBtn.addEventListener("click", () => {
+  const blob = getRecordedBlob();
+  if (!blob) {
+    alert("No recording available. Play a sequence first.");
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "recording.webm";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+window.addEventListener("keydown", function (e) {
+  const activeEl = document.activeElement;
+  const isTyping =
+    activeEl &&
+    (activeEl.tagName === "INPUT" ||
+     activeEl.tagName === "TEXTAREA" ||
+     activeEl.isContentEditable);
+
+  if (isTyping) return;
+
+  // Only handle spacebar
+  if (e.code === "Space") {
+    e.preventDefault();
+
+    if (!isPlaying) {
+      playAllHands();
+    } else {
+      stopPlayback();
+    }
+  }
+});
+
+
+
 
 
 renderHands();
